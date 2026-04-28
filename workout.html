@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Workout Timer</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #111827, #1f2937);
+      color: white;
+      padding: 24px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: #cbd5e1;
+      font-size: 0.95rem;
+    }
+
+    .sets-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 22px;
+      align-items: start;
+    }
+
+    .set-section {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 22px;
+      padding: 18px;
+    }
+
+    .set-title {
+      font-size: 1.35rem;
+      margin-bottom: 14px;
+      color: #bfdbfe;
+    }
+
+    .exercise-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+    }
+
+    .workout-card {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .exercise-name {
+      font-size: 1.1rem;
+      font-weight: bold;
+      text-transform: capitalize;
+    }
+
+    .exercise-target {
+      color: #93c5fd;
+      font-size: 0.9rem;
+      white-space: nowrap;
+    }
+
+    .timer {
+      text-align: center;
+      font-size: 2.7rem;
+      font-weight: bold;
+      margin: 14px 0;
+      letter-spacing: 1px;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    button {
+      border: none;
+      border-radius: 12px;
+      padding: 11px 10px;
+      font-size: 0.95rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    button:active {
+      transform: translateY(0);
+      opacity: 0.85;
+    }
+
+    .start {
+      background: #22c55e;
+      color: #052e16;
+    }
+
+    .stop {
+      background: #f97316;
+      color: #431407;
+    }
+
+    .reset {
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    .manual-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 14px;
+      color: #dbeafe;
+      font-size: 0.9rem;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 48px;
+      height: 26px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background: #64748b;
+      transition: 0.2s;
+      border-radius: 999px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 20px;
+      width: 20px;
+      left: 3px;
+      bottom: 3px;
+      background: white;
+      transition: 0.2s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background: #38bdf8;
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(22px);
+    }
+
+    .focus-section {
+      margin-top: 32px;
+    }
+
+    .focus-heading {
+      text-align: center;
+      margin-bottom: 18px;
+    }
+
+    .focus-heading h2 {
+      font-size: 1.7rem;
+      margin-bottom: 8px;
+    }
+
+    .focus-heading p {
+      color: #cbd5e1;
+      font-size: 0.95rem;
+      max-width: 780px;
+      margin: 0 auto;
+      line-height: 1.5;
+    }
+
+    .focus-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 18px;
+    }
+
+    .focus-card {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.22);
+    }
+
+    .focus-card h3 {
+      font-size: 1.25rem;
+      color: #bfdbfe;
+      margin-bottom: 8px;
+    }
+
+    .focus-note {
+      color: #cbd5e1;
+      font-size: 0.9rem;
+      line-height: 1.45;
+      margin-bottom: 14px;
+    }
+
+    .focus-list {
+      list-style: none;
+      display: grid;
+      gap: 10px;
+    }
+
+    .focus-list li {
+      background: rgba(15, 23, 42, 0.58);
+      border-radius: 12px;
+      padding: 10px 12px;
+      line-height: 1.35;
+    }
+
+    .focus-list strong {
+      display: block;
+      color: #ffffff;
+      margin-bottom: 3px;
+    }
+
+    .focus-list span {
+      color: #93c5fd;
+      font-size: 0.88rem;
+    }
+
+    .hint {
+      margin-top: 22px;
+      color: #cbd5e1;
+      text-align: center;
+      font-size: 0.85rem;
+      line-height: 1.4;
+    }
+
+    @media (max-width: 700px) {
+      body {
+        padding: 16px;
+      }
+
+      .sets-grid,
+      .exercise-grid,
+      .focus-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .timer {
+        font-size: 2.4rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <h1>Workout Timer</h1>
+      <p class="subtitle">Exercises are grouped by set. Auto mode counts down, manual mode counts up until you stop it.</p>
+    </header>
+
+    <section id="sets" class="sets-grid"></section>
+
+    <section class="focus-section">
+      <div class="focus-heading">
+        <h2>Fat Loss Focus</h2>
+        <p>
+          These cards add focused routines for upper body, lower body, and yoga. They help build strength, raise heart rate, improve mobility, and support overall fat loss.
+        </p>
+      </div>
+
+      <div id="focusCards" class="focus-grid"></div>
+    </section>
+
+    <p class="hint">
+      Toggle manual timer for any exercise you want to start and stop yourself.
+    </p>
+  </main>
+
+  <script>
+    const workoutSets = [
+      {
+        title: "Set 1",
+        exercises: [
+          { name: "Pushups", target: "20 reps", seconds: 20 },
+          { name: "Squats", target: "30 reps", seconds: 30 },
+          { name: "Leg Raises", target: "25 reps", seconds: 25 },
+          { name: "Mountain Climbers", target: "40 reps", seconds: 40 },
+          { name: "Plank", target: "1 min", seconds: 60 }
+        ]
+      },
+      {
+        title: "Set 2",
+        exercises: [
+          { name: "Jumping Jack", target: "20 reps", seconds: 20 },
+          { name: "Elbow Knee Tap", target: "20 reps", seconds: 20 },
+          { name: "Squat Side Step", target: "20 reps", seconds: 20 },
+          { name: "Knee Taps", target: "20 reps", seconds: 20 },
+          { name: "Reverse Lunge", target: "20 reps", seconds: 20 },
+          { name: "High Knees", target: "20 reps", seconds: 20 }
+        ]
+      }
+    ];
+
+    const fatLossFocusCards = [
+      {
+        title: "Upper Body: Arms, Chest & Shoulders",
+        note: "Strengthens arms and upper body. Fat loss happens overall, but these moves help build muscle and shape this area.",
+        exercises: [
+          { name: "Incline or Regular Pushups", target: "10-20 reps" },
+          { name: "Tricep Dips on Chair", target: "10-15 reps" },
+          { name: "Plank Shoulder Taps", target: "20 taps" },
+          { name: "Arm Circles", target: "30 sec forward + 30 sec backward" },
+          { name: "Mountain Climbers", target: "30-40 sec" },
+          { name: "Bear Hold", target: "20-30 sec" }
+        ]
+      },
+      {
+        title: "Lower Body: Thighs, Glutes & Legs",
+        note: "Targets thighs, glutes, and legs. These larger muscles make workouts more demanding and support overall calorie burn.",
+        exercises: [
+          { name: "Bodyweight Squats", target: "15-30 reps" },
+          { name: "Reverse Lunges", target: "10-15 each leg" },
+          { name: "Side Lunges", target: "10-12 each side" },
+          { name: "Glute Bridges", target: "20 reps" },
+          { name: "Wall Sit", target: "30-60 sec" },
+          { name: "High Knees or Marching High Knees", target: "30-40 sec" }
+        ]
+      },
+      {
+        title: "Yoga: Flexibility, Breathing & Surya Namaskar",
+        note: "Good for mobility, recovery, breathing control, and consistency. Pair it with strength and cardio days.",
+        exercises: [
+          { name: "Surya Namaskar", target: "3-6 rounds" },
+          { name: "Cat-Cow Stretch", target: "45 sec" },
+          { name: "Downward Dog", target: "30-45 sec" },
+          { name: "Cobra Pose", target: "30 sec" },
+          { name: "Seated Forward Fold", target: "45 sec" },
+          { name: "Box Breathing", target: "2-3 min" }
+        ]
+      }
+    ];
+
+    const state = workoutSets.map(set => ({
+      ...set,
+      exercises: set.exercises.map(exercise => ({
+        ...exercise,
+        timeLeft: exercise.seconds,
+        elapsed: 0,
+        intervalId: null,
+        isRunning: false,
+        isManual: false
+      }))
+    }));
+
+    const setsEl = document.getElementById("sets");
+    const focusCardsEl = document.getElementById("focusCards");
+
+    function formatTime(totalSeconds) {
+      const minutes = Math.floor(totalSeconds / 60);
+      const seconds = totalSeconds % 60;
+      return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+    }
+
+    function render() {
+      setsEl.innerHTML = "";
+
+      state.forEach((set, setIndex) => {
+        const setSection = document.createElement("section");
+        setSection.className = "set-section";
+
+        const exerciseCards = set.exercises.map((exercise, exerciseIndex) => {
+          const shownTime = exercise.isManual ? exercise.elapsed : exercise.timeLeft;
+
+          return `
+            <article class="workout-card">
+              <div class="card-top">
+                <div class="exercise-name">${exercise.name}</div>
+                <div class="exercise-target">${exercise.target}</div>
+              </div>
+
+              <div class="timer" id="timer-${setIndex}-${exerciseIndex}">${formatTime(shownTime)}</div>
+
+              <div class="controls">
+                <button class="start" onclick="startTimer(${setIndex}, ${exerciseIndex})">Start</button>
+                <button class="stop" onclick="stopTimer(${setIndex}, ${exerciseIndex})">Stop</button>
+                <button class="reset" onclick="resetTimer(${setIndex}, ${exerciseIndex})">Reset</button>
+              </div>
+
+              <div class="manual-row">
+                <span>Manual timer</span>
+                <label class="switch">
+                  <input type="checkbox" ${exercise.isManual ? "checked" : ""} onchange="toggleManual(${setIndex}, ${exerciseIndex})" />
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </article>
+          `;
+        }).join("");
+
+        setSection.innerHTML = `
+          <h2 class="set-title">${set.title}</h2>
+          <div class="exercise-grid">
+            ${exerciseCards}
+          </div>
+        `;
+
+        setsEl.appendChild(setSection);
+      });
+    }
+
+    function renderFocusCards() {
+      focusCardsEl.innerHTML = fatLossFocusCards.map(card => `
+        <article class="focus-card">
+          <h3>${card.title}</h3>
+          <p class="focus-note">${card.note}</p>
+          <ul class="focus-list">
+            ${card.exercises.map(exercise => `
+              <li>
+                <strong>${exercise.name}</strong>
+                <span>${exercise.target}</span>
+              </li>
+            `).join("")}
+          </ul>
+        </article>
+      `).join("");
+    }
+
+    function getExercise(setIndex, exerciseIndex) {
+      return state[setIndex].exercises[exerciseIndex];
+    }
+
+    function updateTimerDisplay(setIndex, exerciseIndex) {
+      const exercise = getExercise(setIndex, exerciseIndex);
+      const timerEl = document.getElementById(`timer-${setIndex}-${exerciseIndex}`);
+      const shownTime = exercise.isManual ? exercise.elapsed : exercise.timeLeft;
+      timerEl.textContent = formatTime(shownTime);
+    }
+
+    function startTimer(setIndex, exerciseIndex) {
+      const exercise = getExercise(setIndex, exerciseIndex);
+      if (exercise.isRunning) return;
+
+      exercise.isRunning = true;
+
+      exercise.intervalId = setInterval(() => {
+        if (exercise.isManual) {
+          exercise.elapsed += 1;
+        } else {
+          exercise.timeLeft -= 1;
+
+          if (exercise.timeLeft <= 0) {
+            exercise.timeLeft = 0;
+            stopTimer(setIndex, exerciseIndex);
+          }
+        }
+
+        updateTimerDisplay(setIndex, exerciseIndex);
+      }, 1000);
+    }
+
+    function stopTimer(setIndex, exerciseIndex) {
+      const exercise = getExercise(setIndex, exerciseIndex);
+      clearInterval(exercise.intervalId);
+      exercise.intervalId = null;
+      exercise.isRunning = false;
+    }
+
+    function resetTimer(setIndex, exerciseIndex) {
+      const exercise = getExercise(setIndex, exerciseIndex);
+      stopTimer(setIndex, exerciseIndex);
+      exercise.timeLeft = exercise.seconds;
+      exercise.elapsed = 0;
+      updateTimerDisplay(setIndex, exerciseIndex);
+    }
+
+    function toggleManual(setIndex, exerciseIndex) {
+      const exercise = getExercise(setIndex, exerciseIndex);
+      stopTimer(setIndex, exerciseIndex);
+      exercise.isManual = !exercise.isManual;
+      exercise.timeLeft = exercise.seconds;
+      exercise.elapsed = 0;
+      render();
+    }
+
+    render();
+    renderFocusCards();
+  </script>
+</body>
+</html>
